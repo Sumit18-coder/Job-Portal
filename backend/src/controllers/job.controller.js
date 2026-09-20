@@ -29,10 +29,122 @@ const createJob = asyncHandler(async (req, res) => {
     ) {
         throw new ApiError(
             400,
-            "title, description companyId, jobType and workMode are required"
+            "title, description, companyId, jobType and workMode are required"
         )
     }
 
+    const allowedJobTypes = [
+        "FULL_TIME",
+        "PART_TIME",
+        "CONTRACT",
+        "INTERNSHIP"
+    ];
+
+    const allowedWorkModes = [
+        "ONSITE",
+        "HYBRID",
+        "REMOTE"
+    ];
+
+    if (!allowedJobTypes.includes(jobType)) {
+        throw new ApiError(
+            400,
+            "Invalid job type"
+        );
+    }
+
+    if (!allowedWorkModes.includes(workMode)) {
+        throw new ApiError(
+            400,
+            "Invalid work mode"
+        );
+    }
+
+    const allowedStatuses = [
+        "DRAFT",
+        "ACTIVE",
+        "CLOSED"
+    ];
+
+    if (
+        status !== undefined &&
+        !allowedStatuses.includes(status)
+    ) {
+        throw new ApiError(
+            400,
+            "Invalid job status"
+        );
+    }
+
+    if (
+        salaryMin !== undefined &&
+        salaryMin !== null &&
+        salaryMin < 0
+    ) {
+        throw new ApiError(
+            400,
+            "Minimum salary cannot be negative"
+        );
+    }
+
+    if (
+        salaryMax !== undefined &&
+        salaryMax !== null &&
+        salaryMax < 0
+    ) {
+        throw new ApiError(
+            400,
+            "Maximum salary cannot be negative"
+        );
+    }
+
+    if (
+        salaryMin !== undefined &&
+        salaryMax !== undefined &&
+        salaryMin !== null &&
+        salaryMax !== null &&
+        salaryMin > salaryMax
+    ) {
+        throw new ApiError(
+            400,
+            "Minimum salary cannot exceed maximum salary"
+        );
+    }
+
+    if (
+        experienceMin !== undefined &&
+        experienceMin !== null &&
+        experienceMin < 0
+    ) {
+        throw new ApiError(
+            400,
+            "Minimum experience cannot be negative"
+        );
+    }
+
+    if (
+        experienceMax !== undefined &&
+        experienceMax !== null &&
+        experienceMax < 0
+    ) {
+        throw new ApiError(
+            400,
+            "Maximum experience cannot be negative"
+        );
+    }
+
+    if (
+        experienceMin !== undefined &&
+        experienceMax !== undefined &&
+        experienceMin !== null &&
+        experienceMax !== null &&
+        experienceMin > experienceMax
+    ) {
+        throw new ApiError(
+            400,
+            "Minimum experience cannot exceed maximum experience"
+        );
+    }
     const { data: company, error: companyError } = await supabase
         .from("companies")
         .select("id, recruiter_id")
